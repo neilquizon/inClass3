@@ -4,35 +4,49 @@ using System.IO;
 using System.Net;
 using System.Text;
 
+
+
+
 namespace inClass3
 {
     class Program
     {
-        
+
         static void Main(string[] args)
         {
 
-            const string BASE_URL = "https://swapi.co/api/";
-            const string PLANETS = "planets/";
-            
+            string pages = "https://swapi.co/api/planets/?page=1";
 
-            JObject planetList = CallRestMethod(BASE_URL + PLANETS);
 
-            JArray planets = (JArray)planetList["results"];
-
-            foreach (JObject planet in planets)
+            while (pages != "")
             {
-                Console.WriteLine("Planet: " + planet["name"] + "\n");
-                JArray films = (JArray)planet["films"];
+                JObject planetList = CallRestMethod(pages);
 
-                Console.WriteLine("Film(s): \n");
-
-                foreach (JValue film in films)
+                JArray planets = (JArray)planetList["results"];
+                foreach (JObject planet in planets)
                 {
-                    Console.WriteLine(CallRestMethod(film.ToString())["title"] + "\n");
-                }
-            }
+                    Console.WriteLine("Planet: " + planet["name"] + "\n");
+                    JArray films = (JArray)planet["films"];
 
+                    Console.WriteLine("Film(s): \n");
+                    if (films.HasValues)
+                    {
+                        foreach (JValue film in films)
+                        {
+                            Console.WriteLine(CallRestMethod(film.ToString())["title"] + "\n");
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine("No Films");
+
+                    }
+                    
+                }
+
+                Console.WriteLine();
+                pages = planetList["next"].ToString();
+            }
             Console.ReadLine();
         }
 
@@ -41,7 +55,7 @@ namespace inClass3
             try
             {
                 // Create a web request for the given uri
-                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(uri);
+                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(new Uri(uri));
 
                 // Get the web response from the api
                 HttpWebResponse response = (HttpWebResponse)request.GetResponse();
@@ -62,7 +76,7 @@ namespace inClass3
             catch (Exception e)
             {
                 
-                return JObject.Parse("Error not in any films");
+                return JObject.Parse("{'Error':'Something went wrong'}");
             }
         }
     }
