@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json.Linq;
+using System;
 using System.IO;
 using System.Net;
 using System.Text;
@@ -20,7 +21,7 @@ namespace inClass3
                 HttpWebResponse response = (HttpWebResponse)request.GetResponse();
                 StreamReader responseStream = new StreamReader(response.GetResponseStream(), Encoding.UTF8);
 
-                Console.WriteLine(responseStream.ReadToEnd());
+                Console.WriteLine(JObject.Parse(responseStream.ReadToEnd()));
 
             }
             catch (Exception e)
