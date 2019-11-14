@@ -8,28 +8,64 @@ namespace inClass3
 {
     class Program
     {
+        
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
-            string baseUrl = "https://swapi.co/api/";
-            string planets = "planets/";
-            string people = "people/";
+
+            const string BASE_URL = "https://swapi.co/api/";
+            const string PLANETS = "planets/";
+            
+
+            JObject planetList = CallRestMethod(BASE_URL + PLANETS);
+
+            JArray planets = (JArray)planetList["results"];
+
+            foreach (JObject planet in planets)
+            {
+                Console.WriteLine("Planet: " + planet["name"] + "\n");
+                JArray films = (JArray)planet["films"];
+
+                Console.WriteLine("Film(s): \n");
+
+                foreach (JValue film in films)
+                {
+                    Console.WriteLine(CallRestMethod(film.ToString())["title"] + "\n");
+                }
+            }
+
+            Console.ReadLine();
+        }
+
+        static JObject CallRestMethod(string uri)
+        {
             try
             {
-                Uri uri = new Uri(baseUrl + planets);
+                // Create a web request for the given uri
                 HttpWebRequest request = (HttpWebRequest)WebRequest.Create(uri);
+
+                // Get the web response from the api
                 HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+
+                // Get a stream to read the reponse
                 StreamReader responseStream = new StreamReader(response.GetResponseStream(), Encoding.UTF8);
 
-                Console.WriteLine(JObject.Parse(responseStream.ReadToEnd()));
+                // Read the response and write it to the console
+                JObject result = JObject.Parse(responseStream.ReadToEnd());
 
+                // Close the connection to the api and the stream reader
+                response.Close();
+
+                responseStream.Close();
+
+                return result;
             }
             catch (Exception e)
             {
-                Console.WriteLine("An error has occured. Could not get planets:\n" + e.Message);
+                
+                return JObject.Parse("Error not in any films");
             }
-            Console.ReadLine();
         }
     }
+
 }
 
