@@ -4,9 +4,6 @@ using System.IO;
 using System.Net;
 using System.Text;
 
-
-
-
 namespace inClass3
 {
     class Program
